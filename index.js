@@ -1,92 +1,86 @@
 'use strict';
 const _ = require('lodash');
-const request = require('request-promise-native');
+const axios = require('axios');
 
 const defaultConfig = {
-  browserMob:{ host:'localhost',  port: 8080, protocol:'http' },
+  browserMob: { host: 'localhost', port: 8080, protocol: 'http' },
 };
 
-
 class BrowserMobClient {
-  constructor(config){
+  constructor(config) {
     _.defaults(this, config || {}, defaultConfig);
     let bmp = this.browserMob;
-    bmp.uri = `${ bmp.protocol }://${ bmp.host }:${ bmp.port }`;
+    bmp.uri = `${bmp.protocol}://${bmp.host}:${bmp.port}`;
   }
 
-
-  static createClient(config){
+  static createClient(config) {
     return new this(config);
   }
 
-
-  createHar(options){
-    return this._callProxy('har','PUT', options);
+  async createHar(options) {
+    return await this._callProxy('har', 'PUT', options);
   }
 
-
-  getHar(){
-    return this. _callProxy('har','GET');
+  async getHar() {
+    return await this._callProxy('har', 'GET');
   }
 
-  closeProxies(){
+  async closeProxies() {
     let that = this;
-    return this.listProxies()
-    .then( ports => {
+    return await this.listProxies().then((ports) => {
       return Promise.all(
-        _.map( ports.proxyList, function(portData){
+        _.map(ports.proxyList, function (portData) {
           return that.end(portData.port);
         })
       );
     });
   }
 
-  setLimits(options){
+  async setLimits(options) {
     let that = this;
-    return that._callProxy('limit','PUT', options)
-    .then( () => that.limits = _.extend({}, that.limits, options ) );
+    await that._callProxy('limit', 'PUT', options);
+    return (that.limits = _.extend({}, that.limits, options));
   }
 
-  start(options){
+  async start(options) {
     let that = this;
-    return that.callRest('proxy', 'POST', options )
-    .then( proxyInfo => {
-      that.proxy = proxyInfo;
-      return proxyInfo;
+    await that.callRest('proxy', 'POST', options).then((data)=> {
+      that.proxy = data
     });
+    return that.proxy;
   }
 
-
-  end(port){
+  async end(port) {
     let that = this;
-    if (!port && !that.proxy) { return Promise.resolve(); }
-    return this. _callProxy(null,'DELETE', null, port)
-    .then(data =>{
-      if ( !port || that.proxy && that.proxy.port == port  ){
-        delete that.proxy;
-      }
+    if (!port && !that.proxy) {
+      return Promise.resolve();
+    }
+    const data = await this._callProxy(null, 'DELETE', null, port);
+    if (!port || (that.proxy && that.proxy.port == port)) {
+      delete that.proxy;
+    }
+  }
+
+  async listProxies() {
+    return await this.callRest('proxy', 'GET');
+  }
+
+  async callRest(url, method, data) {
+    const response = await axios({
+      method: method,
+      data: data || {},
+      url: `${this.browserMob.uri}/${url}`,
+    }).catch((e) => {
+      console.error('error occur');
+      console.error(e);
     });
+    return response.data;
   }
 
-  listProxies(){
-    return this.callRest('proxy','GET');
+  _callProxy(ext, method, data, proxyPort) {
+    let url = `proxy/${proxyPort || this.proxy.port}/${ext || ''}`;
+    return this.callRest(url, method, data);
   }
-
-  callRest(url ,method, data ){
-    return request({
-       method:method,
-       json:true,
-       body:data || {},
-       uri: `${ this.browserMob.uri }/${ url }`
-    });
-  }
-
-  _callProxy(ext, method, data, proxyPort){
-    let url = `proxy/${ proxyPort || this.proxy.port }/${ ext || ''}`;
-    return this.callRest(url ,method, data );
-  }
-
 }
 
 module.exports = BrowserMobClient;
-
