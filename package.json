@@ -1,5 +1,5 @@
 {
-  "name": "browsermob-proxy-client",
+  "name": "browsermob-proxy-client-axios",
   "description": "Javascript client for browsermob-proxy",
   "keywords": [
     "selenium",
@@ -10,17 +10,18 @@
     "browsermob-proxy-client",
     "har"
   ],
-  "version": "0.1.2",
-  "homepage": "https://github.com/BenRuns/bmp-client",
-  "author": "Ben Patterson <ben@benpatterson.io>",
+  "version": "0.1.3",
+  "homepage": "https://github.com/bobcode99/bmp-client",
+  "author": "Bob",
   "repository": {
     "type": "git",
-    "url": "https://github.com/BenRuns/bmp-client.git"
+    "url": "https://github.com/bobcode99/bmp-client.git"
   },
   "bugs": {
-    "url": "https://github.com/BenRuns/bmp-client/issues"
+    "url": "https://github.com/bobcode99/bmp-client/issues"
   },
   "main": "./index.js",
+  "files": ["index.js"],
   "dependencies": {
     "axios": "^1.3.4",
     "lodash": "^4.17.4"
