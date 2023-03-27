@@ -5,23 +5,23 @@ export = browsermob_proxy_client_axios;
 declare class browsermob_proxy_client_axios {
     constructor(...args: any[]);
 
-    callRest(...args: any[]): void;
+    callRest(...args: any[]): Promise<any>;
 
-    closeProxies(...args: any[]): void;
+    closeProxies(...args: any[]): Promisee<void[]>;
 
-    createHar(...args: any[]): void;
+    createHar(...args: any[]): Promisee<void>;
 
-    end(...args: any[]): void;
+    end(...args: any[]): Promise<void>;
 
-    getHar(...args: any[]): void;
+    getHar(...args: any[]): Promise<any>;
 
-    listProxies(...args: any[]): void;
+    listProxies(...args: any[]): Promise<any>;
 
-    setLimits(...args: any[]): void;
+    setLimits(...args: any[]): Promise<any>;
 
-    start(...args: any[]): void;
+    start(...args: any[]): Promise<any>;
 
-    static createClient(...args: any[]): void;
+    static createClient(...args: any[]): any;
 
 }
 
