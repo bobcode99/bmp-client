@@ -1,59 +1,77 @@
-
 # BrowserMob Proxy Client
 
-A library built to interact with  [browsermob-proxy][1]'s  REST Api. Browsermob proxy has not been updated in several years, it is unlikely that this library will see any substantial updates anytime soon
+A library built to interact with [browsermob-proxy][1]'s REST Api. Browsermob proxy has not been updated in several years, it is unlikely that this library will see any substantial updates anytime soon
 
 ### Setup
 
-1. Ensure that you've downloaded  [browsermob-proxy][1] and have it running
-2. `npm install browsermob-proxy-client`
-
+1. Ensure that you've downloaded [browsermob-proxy][1] and have it running
+2. `npm install browsermob-proxy-client-axios`
 
 #### Quick Start With Selenium
 
 ```javascript
-const webdriver = require('selenium-webdriver');
+const webdriver = require("selenium-webdriver");
 const By = webdriver.By;
 const until = webdriver.until;
-const selProxy = require('selenium-webdriver/proxy');
-const bmpClient = require('browsermob-proxy-client').createClient();
+const selProxy = require("selenium-webdriver/proxy");
+const bmpClient = require("../index").createClient();
+const fs = require("fs");
 //need to require this or it looks for a globally installed chromedriver
-const chromedriver = require('chromedriver');
+const chromedriver = require("chromedriver");
+const { ServiceBuilder, Options } = require("selenium-webdriver/chrome");
 
+let harData;
+let driver;
+    // .setChromeService(serviceBuilder)
 async function runBmp() {
   await bmpClient.start();
   await bmpClient.createHar();
-  const driver = new webdriver.Builder()
-    .forBrowser('chrome')
-    .setProxy(selProxy.manual({ http: 'localhost:' + bmpClient.proxy.port }))
+
+  const hostPort = "localhost:" + bmpClient.proxy.port;
+  let chromeOptions = new Options();
+
+  // To collect all http request, need use chromeOptions --ignore-certificate-error
+  // setProxy() no need to set.
+  chromeOptions.addArguments(`--proxy-server=${hostPort}`);
+  chromeOptions.addArguments("--ignore-certificate-errors");
+
+  driver = new webdriver.Builder()
+    .forBrowser("chrome")
+    // .setProxy(selProxy.manual({ http: 'localhost:' + bmpClient.proxy.port }))
+    .setChromeOptions(chromeOptions)
     .build();
 
-
   await driver.get("https://search.yahoo.com");
-  const harData = await bmpClient.getHar();
+  await driver.sleep(5000);
+
+  harData = await bmpClient.getHar();
   //do something
-  console.log(harData);
-  await bmpClient.end();
+  console.log("harData:", harData);
 }
 
 runBmp()
-  .then(function () {
+  .then(async function () {
+    console.log("harData.log.entries: ", harData.log.entries.length);
+    fs.writeFileSync("yahoo.har", JSON.stringify(harData));
     console.log("Finished Successfully");
+
+    await bmpClient.end();
+    await driver.quit();
     process.exit([0]);
   })
   .catch(function (err) {
     console.error(err.message);
-    console.error(err.stack)
+    console.error(err.stack);
     process.exit([1]);
   });
-
 ```
-
 
 #### API
 
 ##### BrowserMobClient.createClient(config)
+
 Synchronous function that instantiates a new client
+
 - config
 
       {
@@ -69,12 +87,14 @@ Synchronous function that instantiates a new client
       }
 
 ##### client.callRest(url, method, data)
+
 Method to make direct calls to browsermob-proxy's REST API
 see [browsermob-proxy](https://github.com/lightbody/browsermob-proxy#rest-api) for available urls. Returns a promise.
 
 - url
 
-  String - '/har' (see https://github.com/lightbody/browsermob-proxy#rest-api, for a list of endpoints) 
+  String - '/har' (see https://github.com/lightbody/browsermob-proxy#rest-api, for a list of endpoints)
+
 - method
 
   String - 'GET, POST, DELETE, PUT'
@@ -83,12 +103,12 @@ see [browsermob-proxy](https://github.com/lightbody/browsermob-proxy#rest-api) f
 
   Object - { enable: true }
 
-
 ##### client.closeProxies()
+
 Returns a promise that closes all proxies running
 
-
 ##### client.createHar(options)
+
 Returns a promise. Creates a har file on browsermob
 
 - options
@@ -111,21 +131,22 @@ Returns a promise. Creates a har file on browsermob
                         default to initialPageRef.
       }
 
-
-
 ##### client.end()
+
 Returns a promise that stops the proxy port
 
-
 ##### client.getHar()
+
 Returns a promise that resolves to a har in JSON format
 
 ##### client.listProxies()
+
 Resolves to { proxyList: [ { port: 8081 }, { port: 8082 }, { port: 8083 } ]
 
-
 ##### client.setLimits(options)
+
 sets limits on the proxy
+
 - options
 
       {
@@ -147,7 +168,9 @@ sets limits on the proxy
       }
 
 ##### client.start(options)
+
 starts a port to use
+
 - options
 
       {
@@ -155,25 +178,19 @@ starts a port to use
         bindAddress: '192.168.1.222'    // if working in a multi-home env
       }
 
-
-
-
 ### Development
 
 ### Testing
+
 1. Install dependencies `npm install`
 
 2. Install and run [browsermob-proxy][1]
 
-       npm run install-browsermob
-       npm run start-browsermob
+   npm run install-browsermob
+   npm run start-browsermob
 
-2. Run the tests
+3. Run the tests
 
-       npm test
+   npm test
 
-
-
-[1]:  https://github.com/lightbody/browsermob-proxy
-
-
+[1]: https://github.com/lightbody/browsermob-proxy
