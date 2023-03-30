@@ -10,7 +10,7 @@
     "browsermob-proxy-client",
     "har"
   ],
-  "version": "0.1.7",
+  "version": "0.1.8",
   "homepage": "https://github.com/bobcode99/bmp-client",
   "author": "Bob",
   "repository": {
