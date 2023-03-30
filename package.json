@@ -10,7 +10,7 @@
     "browsermob-proxy-client",
     "har"
   ],
-  "version": "0.1.6",
+  "version": "0.1.7",
   "homepage": "https://github.com/bobcode99/bmp-client",
   "author": "Bob",
   "repository": {
@@ -30,6 +30,7 @@
     "lodash": "^4.17.4"
   },
   "devDependencies": {
+    "@types/har-format": "^1.2.10",
     "chai": "4.3.6",
     "chromedriver": "110.0.0",
     "ip": "1.1.8",
