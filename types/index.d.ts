@@ -81,15 +81,15 @@ type StartReturn = {
 };
 
 declare class BrowserMobClient {
-  static createClient(config: ClientConfig): BrowserMobClient;
-  constructor(config: ClientConfig);
-  createHar(options: CreateHarOptions): Promise<null>;
+  static createClient(config?: ClientConfig): BrowserMobClient;
+  constructor(config?: ClientConfig);
+  createHar(options?: CreateHarOptions): Promise<null>;
   getHar(): Promise<Har>;
   closeProxies(): Promise<any>;
-  setLimits(options: SetLimitsOptions): Promise<any>;
+  setLimits(options?: SetLimitsOptions): Promise<any>;
   limits: any;
-  start(options: StartOptions): Promise<StartReturn>;
-  end(port: number): Promise<void>;
+  start(options?: StartOptions): Promise<StartReturn>;
+  end(port?: number): Promise<void>;
   listProxies(): Promise<Object>;
   callRest(url: string, method: MethodType, data: Object): Promise<any>;
   _callProxy(
