@@ -2,7 +2,15 @@ import { Har } from "har-format";
 export = BrowserMobClient;
 
 type ClientConfig = {
-  browserMob: { host: string; port: number; protocol: "http" };
+  browserMob?: { host: string; port: number; protocol: "http" };
+  proxy?: {
+    port: number;
+    bindAddress: string;
+  };
+};
+
+type ProxyList = {
+  proxyList: Array<{ port: number }>;
 };
 
 type CreateHarOptions = {
@@ -90,7 +98,7 @@ declare class BrowserMobClient {
   limits: any;
   start(options?: StartOptions): Promise<StartReturn>;
   end(port?: number): Promise<void>;
-  listProxies(): Promise<Object>;
+  listProxies(): Promise<ProxyList>;
   callRest(url: string, method: MethodType, data: Object): Promise<any>;
   _callProxy(
     ext: string,
